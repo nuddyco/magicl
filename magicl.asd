@@ -138,7 +138,7 @@
 (defmethod output-files ((operation compile-op) (component f->so))
   (values (list (make-pathname :name "libexpokit"
                                :type #-darwin "so" #+darwin "dylib"
-                               :defaults (component-pathname component)))
+                               :defaults (compile-file-pathname (component-pathname component))))
           t))
 
 (defmethod perform ((operation load-op) (component f->so))
@@ -147,10 +147,10 @@
 (defmethod perform ((operation compile-op) (component f->so))
   (flet ((nn (x) (uiop:native-namestring x)))
     (let* ((fortran-file (component-pathname component))
-           (object-file (make-pathname :type "o" :defaults fortran-file))
+           (object-file (make-pathname :type "o" :defaults (compile-file-pathname fortran-file)))
            (shared-object (make-pathname :type #+darwin "dylib" #-darwin "so"
                                          :name "libexpokit"
-                                         :defaults fortran-file)))
+                                         :defaults (compile-file-pathname fortran-file))))
       (uiop:run-program
        (list "gfortran" "-fPIC" "-std=legacy"
              "-c"
